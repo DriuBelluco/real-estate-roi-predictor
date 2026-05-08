@@ -32,4 +32,4 @@ A ferramenta permite:
 4. Acesse o dashboard no seu navegador através de `http://localhost:8501`.
 
 ## 👤 Sobre o Autor
-Desenvolvido por **[Seu Nome]**, Especialista em Dados e Machine Learning Engineer, unindo profunda expertise analítica e modelagem matemática a uma sólida experiência em precificação de ativos e negócios imobiliários.
+Desenvolvido por **Adriano Belluco**, Especialista em Dados e Machine Learning Engineer, unindo profunda expertise analítica e modelagem matemática a uma sólida experiência em precificação de ativos e negócios imobiliários.
