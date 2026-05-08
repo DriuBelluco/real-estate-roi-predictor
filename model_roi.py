@@ -1,0 +1,74 @@
+class RealEstateSimulator:
+    """
+    Motor de cálculo para simulação de cenários de investimento imobiliário.
+    """
+    def __init__(self, property_price: float, renovation_cost: float = 0.0, closing_costs_pct: float = 0.05):
+        """
+        Inicializa o investimento total.
+        closing_costs_pct: ITBI, taxas de cartório e corretagem (padrão 5%).
+        """
+        self.property_price = property_price
+        self.renovation_cost = renovation_cost
+        self.closing_costs = property_price * closing_costs_pct
+        self.total_investment = self.property_price + self.renovation_cost + self.closing_costs
+
+    def calculate_noi(self, daily_rate: float, occupancy_rate: float, 
+                      monthly_condo: float, annual_iptu: float, 
+                      monthly_maintenance: float, platform_fee_pct: float = 0.03) -> float:
+        """
+        Calcula a Receita Operacional Líquida (NOI) anual.
+        """
+        # Receita Bruta
+        annual_gross_revenue = daily_rate * 365 * occupancy_rate
+        
+        # Custos Variáveis (Taxas de plataforma como Airbnb)
+        platform_fees = annual_gross_revenue * platform_fee_pct
+        
+        # Custos Fixos Anuais
+        annual_fixed_costs = (monthly_condo * 12) + annual_iptu + (monthly_maintenance * 12)
+        
+        # Receita Operacional Líquida
+        noi = annual_gross_revenue - platform_fees - annual_fixed_costs
+        return noi
+
+    def generate_investment_metrics(self, noi: float, annual_appreciation_rate: float = 0.04, years_projection: int = 10) -> dict:
+        """
+        Gera os principais indicadores financeiros (KPIs) do investimento.
+        """
+        # Cap Rate (Capitalization Rate) / ROI Anual
+        cap_rate = noi / self.property_price if self.property_price > 0 else 0
+        roi_total = noi / self.total_investment if self.total_investment > 0 else 0
+        
+        # Tempo de Retorno (Payback simples em anos)
+        payback_years = self.total_investment / noi if noi > 0 else float('inf')
+        
+        # Projeção de Valorização do Ativo (Juros Compostos)
+        future_property_value = self.property_price * ((1 + annual_appreciation_rate) ** years_projection)
+        
+        return {
+            "Total Investment": round(self.total_investment, 2),
+            "Annual NOI": round(noi, 2),
+            "Cap Rate (%)": round(cap_rate * 100, 2),
+            "ROI (%)": round(roi_total * 100, 2),
+            "Payback (Years)": round(payback_years, 2),
+            f"Future Value ({years_projection} yrs)": round(future_property_value, 2)
+        }
+
+    def simulate_scenarios(self, base_daily_rate: float, condo: float, iptu: float, maintenance: float):
+        """
+        Gera uma matriz de cenários (Pessimista, Base, Otimista) variando a taxa de ocupação.
+        Ideal para plotar gráficos no Streamlit.
+        """
+        scenarios = {
+            "Pessimista (30% Ocupação)": 0.30,
+            "Base (55% Ocupação)": 0.55,
+            "Otimista (80% Ocupação)": 0.80
+        }
+        
+        results = {}
+        for scenario_name, occupancy in scenarios.items():
+            noi = self.calculate_noi(base_daily_rate, occupancy, condo, iptu, maintenance)
+            metrics = self.generate_investment_metrics(noi)
+            results[scenario_name] = metrics
+            
+        return results
